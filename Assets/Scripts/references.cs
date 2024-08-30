@@ -9,7 +9,7 @@ public static class references
     public static Vector3 GetCursorLocationOnGround()
     {
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit, float.MaxValue, LayerMask.GetMask("Ground")))
+        if (Physics.Raycast(ray, out RaycastHit hit, float.MaxValue, LayerMask.GetMask("Court")))
         {
             return hit.point;
         }

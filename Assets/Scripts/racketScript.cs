@@ -32,8 +32,15 @@ public class racketScript : MonoBehaviour
     public float maxHitAngle;
 
     [SerializeField] private LayerMask netLayerMask;
-    [SerializeField] private float yOffset;
+    [SerializeField] private float lowShotYOffset;
+    [SerializeField] private float highShotYOffset;
+    [SerializeField] private float lowShotForceMultiplier;
+    [SerializeField] private float highShotForceMultiplier;
 
+
+    private bool isLowShot = true; //indicates that the shot is going to be a lowshot (fire1), if it is false then it is going to indicate a high shot (fire2) 
+
+    
     private bool triggerAvailable = true;
     private float triggerMaxWait = 0.5f; //this should be set from the script, 
     private float triggerWait;
@@ -55,8 +62,11 @@ public class racketScript : MonoBehaviour
         //Debug.Log("holdDuration: "  + holdDuration);
         mouseLocation = references.GetCursorLocationOnGround();
 
-        if (Input.GetButton("Fire1"))
+        if (Input.GetButton("Fire1") || Input.GetButton("Fire2"))
         {
+            if (Input.GetButton("Fire1")) { isLowShot = true; }
+            else { isLowShot = false;}
+
             timeAfterRelease = 0;
 
             if (holdDuration < maxHoldDuration) { holdDuration += Time.deltaTime;}
@@ -102,6 +112,7 @@ public class racketScript : MonoBehaviour
         if (RacketCanHit())
         {
             collider.gameObject.GetComponent<Rigidbody>().AddForce(getForceVector(), ForceMode.Impulse);
+            enemyAI.ballObject = collider.gameObject;
         }
     }
 
@@ -135,7 +146,7 @@ public class racketScript : MonoBehaviour
     {
         //we will have to clamp this eventually (we don't want to be shooting behind us :D)
         float timingWeight = getTimingMetric();
-        Vector3 inAccuracyVector = inaccuracy * new Vector3(Random.Range(-timingWeight, timingWeight), 0f, Random.Range(-timingWeight, timingWeight));
+        Vector3 inAccuracyVector = inaccuracy * new Vector3(Random.Range(-timingWeight, timingWeight), Random.Range(-timingWeight, timingWeight)/2, Random.Range(-timingWeight, timingWeight));
         Vector3 direction = (getVectorToCursorDirection() + inAccuracyVector).normalized;
 
         RaycastHit hit;
@@ -145,8 +156,16 @@ public class racketScript : MonoBehaviour
         {
             Debug.Log("Adjusting y.");
             Vector3 hitPoint = hit.point;
-            hitPoint.y = hit.collider.bounds.max.y + yOffset;
-            Debug.Log("Height of the net + yOffset = " + hitPoint.y);
+            if (isLowShot)
+            {
+                hitPoint.y = hit.collider.bounds.max.y + lowShotYOffset;
+                Debug.Log("Is a lowshot!");
+            }
+            else
+            {
+                hitPoint.y = hit.collider.bounds.max.y + highShotYOffset;
+                Debug.Log("Is a highshot!");
+            }
             direction = (hitPoint - transform.position).normalized;
         }
         
@@ -165,7 +184,14 @@ public class racketScript : MonoBehaviour
 
     private float getForceMagnitude()
     {
-        return getHoldDurationForce() + (1 - getTimingMetric()) * timingForceWeight;
+        if (isLowShot)
+        {
+            return getHoldDurationForce() *  lowShotForceMultiplier;
+        }
+        else
+        {
+            return getHoldDurationForce() * highShotForceMultiplier;
+        }
     }
 
     private Vector3 getForceVector()
