@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 5285219566090960942}
   - component: {fileID: 7192708960032238661}
   - component: {fileID: -3381883265427573011}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: TennisBall
   m_TagString: tennisBall
   m_Icon: {fileID: 0}
@@ -146,5 +146,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b27df80d145b6485dbee87e33175d85d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHitForce: 2
+  maxHitForce: 2.5
   spinMultiplier: 0

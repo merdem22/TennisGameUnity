@@ -3,15 +3,18 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - tennisBall
+  - tennisRacket
+  - ground
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Net
   - Water
   - UI
-  - 
+  - Ground
   - 
   - 
   - 
