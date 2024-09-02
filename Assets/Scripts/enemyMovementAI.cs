@@ -56,12 +56,12 @@ public class enemyAI : MonoBehaviour
         if (distance < closenessRange) { ballIsClose = true; }
         else { ballIsClose = false; }
 
-        Debug.Log("Distance of ball to player: " + distance);
-        Debug.Log("ball is close:" + ballIsClose);
+        //Debug.Log("Distance of ball to player: " + distance);
+        //Debug.Log("ball is close:" + ballIsClose);
 
         //we want the enemy to be more precise and small in its anticipations for the ball when its close.
         float anticipationTime = getAnticipationTime();
-        Debug.Log("anticipationTime:" + anticipationTime);
+        //Debug.Log("anticipationTime:" + anticipationTime);
         Vector3 anticipatedPosition = ballPosition + (anticipationTime * ballVelocity);
 
         
@@ -71,7 +71,7 @@ public class enemyAI : MonoBehaviour
         bool ballOnAISide = (transform.position.z > netPosition && anticipatedPosition.z > netPosition && anticipatedPosition.z < courtLength) ||
                             (transform.position.z < netPosition && anticipatedPosition.z < netPosition && anticipatedPosition.z > -courtLength);
                            
-        Debug.Log("bool (Ball is on AI side): " + ballOnAISide);
+        //Debug.Log("bool (Ball is on AI side): " + ballOnAISide);
         if (ballOnAISide)
         {
             targetPosition = new Vector3(anticipatedPosition.x, transform.position.y, anticipatedPosition.z);
