@@ -4,7 +4,13 @@ using UnityEngine;
 
 public static class references
 {
-    public static Camera mainCamera; //is set by cameraScript.
+
+    //commonly accesed stuff should be here for ease of use.
+
+    public static Camera mainCamera;
+    public static float maxBallSpeed;
+    public static float courtWidth;
+    public static float courtLength;
     
     public static Vector3 GetCursorLocationOnGround()
     {

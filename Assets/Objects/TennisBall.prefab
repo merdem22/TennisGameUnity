@@ -148,3 +148,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHitForce: 2.5
   spinMultiplier: 0
+  maxBallSpeed: 180

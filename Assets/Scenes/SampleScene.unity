@@ -458,6 +458,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!1 &883120869 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5664093098813236572, guid: ce7d3e48c365741d0a02c823baeca768, type: 3}
+  m_PrefabInstance: {fileID: 5538714851449039598}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -544,8 +549,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.13192368, y: -0.000020700681, z: 0.000019113722, w: 0.99125993}
-  m_LocalPosition: {x: -0.03669429, y: 5.1061606, z: -23}
+  m_LocalRotation: {x: -0.14677308, y: 0.006851756, z: -0.0010325586, w: -0.9891459}
+  m_LocalPosition: {x: -0.43943468, y: 9.1864395, z: -35.89254}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -613,10 +618,12 @@ MonoBehaviour:
   netLayerMask:
     serializedVersion: 2
     m_Bits: 8
-  lowShotYOffset: 1
+  lowShotYOffset: 1.5
   highShotYOffset: 4
   lowShotForceMultiplier: 1.3
   highShotForceMultiplier: 1
+  minYOffsetMagnifier: 1
+  maxYOffsetMagnifier: 1.5
 --- !u!65 &1053607089
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -864,6 +871,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9510756b442df41c5aaa5c38e8221d99, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  minHitForceMultiplier: 30
+  maxHitForceMultiplier: 50
+  maxHitAngle: 45
+  playerTransform: {fileID: 1625029136}
+  opponentTransform: {fileID: 1667992831}
+  courtTransform: {fileID: 416493055}
+  biasMagnitude: 0.5
+  netLayerMask:
+    serializedVersion: 2
+    m_Bits: 8
+  minYOffset: 0.03
+  maxYOffset: 0.1
+  minSpeedForceMultiplier: 1
+  maxSpeedForceMultiplier: 2.5
+  hitAvailable: 1
 --- !u!4 &1625029136 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5640007209440599056, guid: ce7d3e48c365741d0a02c823baeca768, type: 3}
@@ -879,7 +901,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1667992831}
   - component: {fileID: 1667992830}
-  - component: {fileID: 1667992832}
   m_Layer: 0
   m_Name: enemy
   m_TagString: Untagged
@@ -903,6 +924,7 @@ MonoBehaviour:
   maxAnticipationTime: 0.5
   minAnticipationTime: 0.05
   closenessRange: 10
+  characterReference: {fileID: 883120869}
   court: {fileID: 416493051}
 --- !u!4 &1667992831
 Transform:
@@ -912,26 +934,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1667992829}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
   m_LocalPosition: {x: 0, y: 0, z: 20}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1427819567}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1667992832
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1667992829}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e9bb6fcc1a4bf4eb995522f6dc870611, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!1001 &5211582639796597080
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1072,6 +1082,10 @@ PrefabInstance:
     - target: {fileID: 5795926272893001896, guid: ce7d3e48c365741d0a02c823baeca768, type: 3}
       propertyPath: m_ExcludeLayers.m_Bits
       value: 128
+      objectReference: {fileID: 0}
+    - target: {fileID: 6098122612034674028, guid: ce7d3e48c365741d0a02c823baeca768, type: 3}
+      propertyPath: movementSpeed
+      value: 10
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

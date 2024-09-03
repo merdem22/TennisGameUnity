@@ -24,49 +24,80 @@ public class opponentHitAi : MonoBehaviour
     [SerializeField] private float minYOffset;
     [SerializeField] private float maxYOffset;
 
+    [SerializeField] private float minSpeedForceMultiplier;
+    [SerializeField] private float maxSpeedForceMultiplier;
+
+
+    
 
     private float courtWidth;
     private float courtLength;
 
+    //initially it should be true.
+    public bool hitAvailable = true; //enemyMovement script wants to know its value therefore, it is made public.
+
+    //serves the same purpose as the player's triggerMaxWait, locks the trigger so it can only be used once within a period of time.
+    private float triggerMaxWait = 2.5f;
+    private float curTriggerWait;
 
 
-    // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         courtWidth = courtTransform.localScale.x;
         courtLength = courtTransform.localScale.z;
+        references.courtWidth = courtWidth;
+        references.courtLength = courtLength;
+
+
+        curTriggerWait = triggerMaxWait;
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
+
+        //Debug.Log("curTriggerWait: " + curTriggerWait);
+        //Debug.Log("hitAvailable: " + hitAvailable);
+
+        if (!hitAvailable)
+        {
+            curTriggerWait -= Time.deltaTime;
+            if (curTriggerWait <= 0) { hitAvailable = true;}
+        }
     }
 
     private void OnTriggerEnter(Collider other)
     {
        if (other.CompareTag("tennisBall"))
        {
-            hitBall(other); 
+            if (hitAvailable)
+            {
+                hitBall(other);
+                hitAvailable = false;
+                curTriggerWait = triggerMaxWait;
+            }
+            
        }
     }
 
     private void hitBall(Collider other)
     {
+        Rigidbody ballRigidbody = other.GetComponent<Rigidbody>();
 
         Vector3 hitDirection = calculateHitDirection();
         hitDirection = ClampHitDirection(hitDirection);
 
+        float speedForce = speedHitMagnifier(new Vector3(ballRigidbody.velocity.x, 0f, ballRigidbody.velocity.z).magnitude);
         float hitForce = calculateHitForce(hitDirection);
-        Debug.Log("calculated hit force: " + hitForce);
+        //Debug.Log("calculated hit force: " + hitForce);
         hitDirection.y = calculateYOffset(hitDirection);
-        Debug.Log("calculated y offset: " + hitDirection.y);
+        //Debug.Log("calculated y offset: " + hitDirection.y);
 
 
-        Rigidbody ballRigidbody = other.GetComponent<Rigidbody>();
+
+        
         if (ballRigidbody != null)
         {
-            ballRigidbody.AddForce(hitForce * hitDirection, ForceMode.Impulse);
+            ballRigidbody.AddForce(hitForce * hitDirection * speedForce, ForceMode.Impulse);
         }
         
         
@@ -118,10 +149,10 @@ public class opponentHitAi : MonoBehaviour
         if (Physics.Raycast(raycastPosition, raycastDirection, out hit, float.PositiveInfinity, netLayerMask))
         {
             distanceToNet = Vector3.Distance(hit.point, opponentTransform.position);
-            Debug.Log("raycast for opponent hitforce hit");
+            //Debug.Log("raycast for opponent hitforce hit");
         }
-
-        float normalizedDistance = Mathf.InverseLerp(0, courtLength / 2, distanceToNet);
+        float hypothenus = Mathf.Sqrt(references.courtLength / 2 * references.courtLength / 2 + references.courtWidth * references.courtWidth);
+        float normalizedDistance = Mathf.InverseLerp(0, hypothenus, distanceToNet);
         return Mathf.Lerp(minHitForceMultiplier, maxHitForceMultiplier, normalizedDistance);
     }
 
@@ -134,10 +165,17 @@ public class opponentHitAi : MonoBehaviour
         if (Physics.Raycast(raycastPosition, raycastDirection, out hit, float.PositiveInfinity, netLayerMask))
         {
             distanceToNet = Vector3.Distance(hit.point, opponentTransform.position);
-            Debug.Log("raycast for opponent y offset hit");
+            //Debug.Log("raycast for opponent y offset hit");
         }
-        float normalizedDistance = Mathf.InverseLerp(0, courtLength / 2, distanceToNet);
+        float hypothenus = Mathf.Sqrt(references.courtLength / 2 * references.courtLength / 2 + references.courtWidth * references.courtWidth);
+        float normalizedDistance = Mathf.InverseLerp(0, hypothenus, distanceToNet);
         return Mathf.Lerp(minYOffset, maxYOffset, normalizedDistance);
+    }
+
+    private float speedHitMagnifier(float speed)
+    {
+        float normalizedSpeed = Mathf.InverseLerp(0, references.maxBallSpeed, speed);
+        return Mathf.Lerp(minSpeedForceMultiplier, maxSpeedForceMultiplier, normalizedSpeed);
     }
 
 }

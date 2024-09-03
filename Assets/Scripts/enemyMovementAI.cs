@@ -10,6 +10,10 @@ public class enemyAI : MonoBehaviour
     [SerializeField] private float maxAnticipationTime;
     [SerializeField] private float minAnticipationTime;
     [SerializeField] private float closenessRange;
+    [SerializeField] private GameObject characterReference;
+
+
+
     public static GameObject ballObject;
     private Rigidbody ballRigidbody;
     private Vector3 targetPosition;
@@ -21,7 +25,9 @@ public class enemyAI : MonoBehaviour
     private float courtLength;
     private float courtGroundLevel; 
     private float netPosition = 0f;
-    private bool ballIsClose = false;
+
+    private opponentHitAi referenceToHitScript;
+    private bool hitAvailable = true; //value known from hit script.
 
     void Start()
     { 
@@ -31,11 +37,14 @@ public class enemyAI : MonoBehaviour
 
         Debug.Log("Court width:" + courtWidth);
         Debug.Log("Court length: " + courtLength);
+
+        referenceToHitScript = GetComponentInChildren<opponentHitAi>();
     }
 
     
     void Update()
     {
+        hitAvailable = referenceToHitScript.hitAvailable;
         
         if (ballObject != null)
         {
@@ -53,11 +62,7 @@ public class enemyAI : MonoBehaviour
 
         float distance = Mathf.Abs((transform.position - ballPosition).magnitude);
 
-        if (distance < closenessRange) { ballIsClose = true; }
-        else { ballIsClose = false; }
-
         //Debug.Log("Distance of ball to player: " + distance);
-        //Debug.Log("ball is close:" + ballIsClose);
 
         //we want the enemy to be more precise and small in its anticipations for the ball when its close.
         float anticipationTime = getAnticipationTime();
@@ -68,18 +73,23 @@ public class enemyAI : MonoBehaviour
         //Vector3 anticipatedPosition = getAccurateBallPrediction();
 
         //determine if the ball is on the side of the enemy.
-        bool ballOnAISide = (transform.position.z > netPosition && anticipatedPosition.z > netPosition && anticipatedPosition.z < courtLength) ||
-                            (transform.position.z < netPosition && anticipatedPosition.z < netPosition && anticipatedPosition.z > -courtLength);
+        bool ballOnAISide = ((transform.position.z > netPosition && anticipatedPosition.z > netPosition && anticipatedPosition.z < courtLength/2) ||
+                            (transform.position.z < netPosition && anticipatedPosition.z < netPosition && anticipatedPosition.z > -courtLength/2)) &&
+                            (courtWidth/2 > anticipatedPosition.x && -courtWidth/2 < anticipatedPosition.x);
                            
         //Debug.Log("bool (Ball is on AI side): " + ballOnAISide);
-        if (ballOnAISide)
+        if (ballOnAISide && hitAvailable)
         {
             targetPosition = new Vector3(anticipatedPosition.x, transform.position.y, anticipatedPosition.z);
         }
         else //ball is on the other side so its best to move to a neutral position.
         {
-            float neutralZ = transform.position.z > netPosition ? courtLength * 0.25f : -courtLength * 0.25f ;
-            targetPosition = new Vector3(0, transform.position.y, neutralZ);
+            float neutralZ = transform.position.z > netPosition ? courtLength * 0.25f : -courtLength * 0.25f;
+            //lets add bias due to the location of the character.
+
+            
+            //float characterBias = characterReference.transform.position.x;
+            targetPosition = new Vector3(0f, transform.position.y, neutralZ);
         }
 
         // Clamp the target position within the court boundaries
@@ -91,23 +101,6 @@ public class enemyAI : MonoBehaviour
     {
         // Smoothly interpolate between the current position and the target position
         transform.position = Vector3.MoveTowards(transform.position, targetPosition, movementSpeed * Time.deltaTime);
-    }
-
-    //this should be used when the ball gets close to the character.
-    private Vector3 getAccurateBallPrediction() //not sure if i am going to use this.
-    {
-        Vector3 ballPosition = ballObject.transform.position;
-        Vector3 ballVelocity = ballRigidbody.velocity;
-
-        // physics :O  
-        float g = (Physics.gravity).magnitude; //hope this is 9.81 on default.
-        float h = (ballPosition.y - courtGroundLevel);
-
-        float maxHeightReached = h + (ballVelocity.y * ballVelocity.y) / 2 * g;
-        float timeToFall = (ballVelocity.y / g) + Mathf.Sqrt(2 * maxHeightReached / g); //total time left on air = (time to reach max height + time to fall from max height)
-
-        return ballPosition + (timeToFall * ballVelocity);
-
     }
 
     //sets anticipation time based on the distance from ball to player, smoother this way, it graudally decreases as the ball gets closer to the palyer.

@@ -38,6 +38,10 @@ public class racketScript : MonoBehaviour
     [SerializeField] private float highShotForceMultiplier;
 
 
+    [SerializeField] private float minYOffsetMagnifier;
+    [SerializeField] private float maxYOffsetMagnifier;
+
+
     private bool isLowShot = true; //indicates that the shot is going to be a lowshot (fire1), if it is false then it is going to indicate a high shot (fire2) 
 
     
@@ -156,14 +160,16 @@ public class racketScript : MonoBehaviour
         {
             Debug.Log("Adjusting y.");
             Vector3 hitPoint = hit.point;
+            float yMagniifer = getYOffsetMagnifier(direction);
+            Debug.Log("y magnifier: " + yMagniifer); 
             if (isLowShot)
             {
-                hitPoint.y = hit.collider.bounds.max.y + lowShotYOffset;
+                hitPoint.y = hit.collider.bounds.max.y + (lowShotYOffset * yMagniifer);
                 Debug.Log("Is a lowshot!");
             }
             else
             {
-                hitPoint.y = hit.collider.bounds.max.y + highShotYOffset;
+                hitPoint.y = hit.collider.bounds.max.y + (highShotYOffset * yMagniifer);
                 Debug.Log("Is a highshot!");
             }
             direction = (hitPoint - transform.position).normalized;
@@ -199,5 +205,23 @@ public class racketScript : MonoBehaviour
         return getForceDirection() * getForceMagnitude();
     }
 
-    
+
+    private float getYOffsetMagnifier(Vector3 hitDirection)
+    {
+        RaycastHit hit;
+        Vector3 raycastPosition = new Vector3(transform.position.x, 0f, transform.position.z); //gotta set y component to zero for the ray to hit the collider.
+        Vector3 raycastDirection = new Vector3(hitDirection.x, 0f, hitDirection.z);
+        float distanceToNet = 0f;
+        if (Physics.Raycast(raycastPosition, raycastDirection, out hit, float.PositiveInfinity, netLayerMask))
+        {
+            distanceToNet = Vector3.Distance(hit.point, transform.position);
+            Debug.Log("raycast for opponent y offset hit");
+        }
+
+        float hypothenus = Mathf.Sqrt(references.courtLength / 2 * references.courtLength / 2 + references.courtWidth * references.courtWidth);
+        float normalizedDistance = Mathf.InverseLerp(0, hypothenus, distanceToNet); //longest distance possible is hyptohenus.
+        return Mathf.Lerp(minYOffsetMagnifier, maxYOffsetMagnifier, normalizedDistance);
+    }
+
+
 }
