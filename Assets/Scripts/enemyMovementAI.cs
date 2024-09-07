@@ -29,8 +29,15 @@ public class enemyAI : MonoBehaviour
     private opponentHitAi referenceToHitScript;
     private bool hitAvailable = true; //value known from hit script.
 
+
+    private void Awake()
+    {
+        //gameManager.Instance.opponent = this.gameObject;
+    }
+
     void Start()
-    { 
+    {
+        ballObject = gameManager.Instance.ball;
         courtWidth = court.transform.localScale.x;
         courtLength = court.transform.localScale.z;
         courtGroundLevel = court.transform.position.y + court.transform.localScale.y / 2; 

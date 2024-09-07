@@ -147,5 +147,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHitForce: 2.5
-  spinMultiplier: 0
-  maxBallSpeed: 180
+  maxBallSpeed: 100
+  court: {fileID: 0}
+  net: {fileID: 0}

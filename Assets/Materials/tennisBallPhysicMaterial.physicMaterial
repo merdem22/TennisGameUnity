@@ -9,6 +9,6 @@ PhysicMaterial:
   m_Name: tennisBallPhysicMaterial
   dynamicFriction: 0.5
   staticFriction: 0.5
-  bounciness: 0.8
+  bounciness: 0.75
   frictionCombine: 0
   bounceCombine: 3

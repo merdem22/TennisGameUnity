@@ -7,6 +7,12 @@ public class movementScript : MonoBehaviour
 
     CharacterController controller;
     public float movementSpeed;
+
+    private void Awake()
+    {
+        //gameManager.Instance.player = this.gameObject;
+    }
+
     void Start()
     {
         controller = GetComponent<CharacterController>();

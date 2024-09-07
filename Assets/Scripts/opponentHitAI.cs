@@ -37,7 +37,7 @@ public class opponentHitAi : MonoBehaviour
     public bool hitAvailable = true; //enemyMovement script wants to know its value therefore, it is made public.
 
     //serves the same purpose as the player's triggerMaxWait, locks the trigger so it can only be used once within a period of time.
-    private float triggerMaxWait = 2.5f;
+    private float triggerMaxWait = 1.5f;
     private float curTriggerWait;
 
 
@@ -67,10 +67,11 @@ public class opponentHitAi : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-       if (other.CompareTag("tennisBall"))
+       if (other.CompareTag("tennisBall") && gameManager.Instance.lastShotPlayer)
        {
             if (hitAvailable)
             {
+                gameManager.Instance.lastShotPlayer = false;
                 hitBall(other);
                 hitAvailable = false;
                 curTriggerWait = triggerMaxWait;
@@ -86,13 +87,18 @@ public class opponentHitAi : MonoBehaviour
         Vector3 hitDirection = calculateHitDirection();
         hitDirection = ClampHitDirection(hitDirection);
 
-        float speedForce = speedHitMagnifier(new Vector3(ballRigidbody.velocity.x, 0f, ballRigidbody.velocity.z).magnitude);
+        //this is also on testing.
+        ballRigidbody.velocity = new Vector3(ballRigidbody.velocity.x, 0f, ballRigidbody.velocity.z);
+        float speedForce = speedHitMagnifier(ballRigidbody.velocity.magnitude);
+        
+
+
         float hitForce = calculateHitForce(hitDirection);
         //Debug.Log("calculated hit force: " + hitForce);
         hitDirection.y = calculateYOffset(hitDirection);
         //Debug.Log("calculated y offset: " + hitDirection.y);
 
-
+        
 
         
         if (ballRigidbody != null)

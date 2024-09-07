@@ -31,6 +31,7 @@ public class racketScript : MonoBehaviour
 
     public float maxHitAngle;
 
+
     [SerializeField] private LayerMask netLayerMask;
     [SerializeField] private float lowShotYOffset;
     [SerializeField] private float highShotYOffset;
@@ -38,6 +39,11 @@ public class racketScript : MonoBehaviour
     [SerializeField] private float highShotForceMultiplier;
 
 
+    //weights of automatically hiting harder when the ball comes fast.
+    [SerializeField] private float minSpeedForceMultiplier;
+    [SerializeField] private float maxSpeedForceMultiplier;
+
+    //weights of automatically hiting more upright when the the distance from the net is far.
     [SerializeField] private float minYOffsetMagnifier;
     [SerializeField] private float maxYOffsetMagnifier;
 
@@ -97,7 +103,7 @@ public class racketScript : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("tennisBall"))
+        if (other.CompareTag("tennisBall") && !gameManager.Instance.lastShotPlayer)
         {
             if (triggerAvailable)
             {
@@ -115,7 +121,15 @@ public class racketScript : MonoBehaviour
     {
         if (RacketCanHit())
         {
-            collider.gameObject.GetComponent<Rigidbody>().AddForce(getForceVector(), ForceMode.Impulse);
+            gameManager.Instance.lastShotPlayer = true;
+            Rigidbody ballRb = collider.gameObject.GetComponent<Rigidbody>();
+            ballRb.velocity = new Vector3(0f, 0f, ballRb.velocity.z); //this is on testing.
+
+
+            float speedMagnifier = speedHitMagnifier(collider.GetComponent<Rigidbody>().velocity.magnitude);
+            Debug.Log("Speed magnifier for player: " + speedMagnifier);
+
+            ballRb.AddForce(getForceVector() * speedMagnifier, ForceMode.Impulse);
             enemyAI.ballObject = collider.gameObject;
         }
     }
@@ -190,6 +204,7 @@ public class racketScript : MonoBehaviour
 
     private float getForceMagnitude()
     {
+        
         if (isLowShot)
         {
             return getHoldDurationForce() *  lowShotForceMultiplier;
@@ -221,6 +236,12 @@ public class racketScript : MonoBehaviour
         float hypothenus = Mathf.Sqrt(references.courtLength / 2 * references.courtLength / 2 + references.courtWidth * references.courtWidth);
         float normalizedDistance = Mathf.InverseLerp(0, hypothenus, distanceToNet); //longest distance possible is hyptohenus.
         return Mathf.Lerp(minYOffsetMagnifier, maxYOffsetMagnifier, normalizedDistance);
+    }
+
+    private float speedHitMagnifier(float speed)
+    {
+        float normalizedSpeed = Mathf.InverseLerp(0, references.maxBallSpeed, speed);
+        return Mathf.Lerp(minSpeedForceMultiplier, maxSpeedForceMultiplier, normalizedSpeed);
     }
 
 
