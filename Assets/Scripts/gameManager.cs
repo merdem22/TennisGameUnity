@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class gameManager : MonoBehaviour
 {
@@ -13,12 +14,14 @@ public class gameManager : MonoBehaviour
     public Vector3 ballDropPosition;
     public GameObject player;
     public GameObject opponent;
+    
 
 
     //fading related.
     [SerializeField] private CanvasGroup fadeCanvasGroup; //the canvas group attached to the Ui for fading after scores.
     [SerializeField] private float fadeDuration;
     [SerializeField] private float waitInFadeDuration;
+    [SerializeField] Image blackImage;
     private bool isFading = false;
 
     public bool lastShotPlayer = false;
@@ -105,19 +108,17 @@ public class gameManager : MonoBehaviour
     //coroutine for fading in and out.
     private IEnumerator Fade(float targetAlpha)
     {
-        float startAlpha = fadeCanvasGroup.alpha;
+        float startAlpha = blackImage.color.a;
         float elapsedTime = 0f;
 
         while (elapsedTime < fadeDuration)
         {
             elapsedTime += Time.deltaTime;
-            fadeCanvasGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, elapsedTime / fadeDuration);
+            float newAlpha = Mathf.Lerp(startAlpha, targetAlpha, elapsedTime / fadeDuration);
+            blackImage.color = new Color(blackImage.color.r, blackImage.color.g,blackImage.color.b, newAlpha);
             yield return null;
         }
-
-        fadeCanvasGroup.alpha = targetAlpha;
     }
-
 
 
 
